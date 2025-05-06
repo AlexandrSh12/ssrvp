@@ -62,6 +62,7 @@ const Lab5 = () => {
                 // Логика авторизации
                 if (values.email === localStorage.getItem('userEmail') &&
                     values.password === localStorage.getItem('userPassword')) {
+                    // Исправление: Диспатчим действие входа в систему
                     dispatch(login({
                         name: localStorage.getItem('userName'),
                         email: values.email,
