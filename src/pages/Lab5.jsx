@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Container from '../components/Container';
@@ -9,6 +9,7 @@ import { login, logout } from '../store/authSlice';
 import { addFeedback } from '../store/feedbackSlice';
 import useLoginState from '../hooks/useLoginState';
 
+// Валидационные схемы
 const validationSchema = Yup.object({
     email: Yup.string().email('Некорректный email').required('Email обязателен'),
     password: Yup.string()
@@ -28,6 +29,24 @@ const Lab5 = () => {
     const isLoggedIn = useLoginState();
     const dispatch = useDispatch();
     const feedbacks = useSelector(state => state.feedback.feedbacks);
+    const user = useSelector(state => state.auth.user);
+
+    // Проверяем наличие сохраненного пользователя при загрузке
+    useEffect(() => {
+        const savedUserEmail = localStorage.getItem('userEmail');
+        const savedUserName = localStorage.getItem('userName');
+
+        if (savedUserEmail && savedUserName) {
+            setIsRegistered(true);
+            // Автоматически входим, если есть сохраненные данные
+            if (localStorage.getItem('autoLogin') === 'true') {
+                dispatch(login({
+                    name: savedUserName,
+                    email: savedUserEmail
+                }));
+            }
+        }
+    }, [dispatch]);
 
     // Форма регистрации/авторизации
     const formik = useFormik({
@@ -35,6 +54,7 @@ const Lab5 = () => {
             email: '',
             password: '',
             name: '',
+            rememberMe: false
         },
         validationSchema,
         onSubmit: (values) => {
@@ -46,6 +66,13 @@ const Lab5 = () => {
                         name: localStorage.getItem('userName'),
                         email: values.email,
                     }));
+
+                    // Запоминаем пользователя если нужно
+                    if (values.rememberMe) {
+                        localStorage.setItem('autoLogin', 'true');
+                    } else {
+                        localStorage.removeItem('autoLogin');
+                    }
                 } else {
                     alert('Неверные данные для входа');
                 }
@@ -55,7 +82,7 @@ const Lab5 = () => {
                 localStorage.setItem('userPassword', values.password);
                 localStorage.setItem('userName', values.name);
                 setIsRegistered(true);
-                alert('Вы успешно зарегистрировались!');
+                alert('Вы успешно зарегистрировались! Теперь вы можете войти.');
             }
         },
     });
@@ -63,7 +90,7 @@ const Lab5 = () => {
     // Форма обратной связи
     const feedbackFormik = useFormik({
         initialValues: {
-            name: '',
+            name: user?.name || '',
             message: '',
             rating: 5,
         },
@@ -75,23 +102,26 @@ const Lab5 = () => {
                 date: new Date().toLocaleDateString()
             }));
             resetForm();
+            alert('Отзыв успешно добавлен!');
         },
+        enableReinitialize: true
     });
 
     const handleLogout = () => {
         dispatch(logout());
+        localStorage.removeItem('autoLogin');
     };
 
     // Профиль пользователя если авторизован
     if (isLoggedIn) {
         return (
             <div>
-                <h2>Лабораторная 5</h2>
+                <h2>Лабораторная 5 - Авторизация и формы</h2>
                 <Container>
                     <h3>Профиль пользователя</h3>
                     <div style={{ textAlign: 'left', margin: '1rem' }}>
-                        <p><strong>Имя:</strong> {useSelector(state => state.auth.user.name)}</p>
-                        <p><strong>Email:</strong> {useSelector(state => state.auth.user.email)}</p>
+                        <p><strong>Имя:</strong> {user.name}</p>
+                        <p><strong>Email:</strong> {user.email}</p>
                     </div>
                     <Button onClick={handleLogout}>Выйти</Button>
                 </Container>
@@ -108,7 +138,7 @@ const Lab5 = () => {
                                 onChange={feedbackFormik.handleChange}
                                 onBlur={feedbackFormik.handleBlur}
                                 value={feedbackFormik.values.name}
-                                style={{ margin: '0.5rem', padding: '0.5rem', width: '100%' }}
+                                style={{ margin: '0.5rem', padding: '0.5rem', width: 'calc(100% - 1rem)' }}
                             />
                             {feedbackFormik.touched.name && feedbackFormik.errors.name ? (
                                 <div style={{ color: 'red' }}>{feedbackFormik.errors.name}</div>
@@ -123,7 +153,7 @@ const Lab5 = () => {
                                 onChange={feedbackFormik.handleChange}
                                 onBlur={feedbackFormik.handleBlur}
                                 value={feedbackFormik.values.message}
-                                style={{ margin: '0.5rem', padding: '0.5rem', width: '100%', minHeight: '100px' }}
+                                style={{ margin: '0.5rem', padding: '0.5rem', width: 'calc(100% - 1rem)', minHeight: '100px' }}
                             />
                             {feedbackFormik.touched.message && feedbackFormik.errors.message ? (
                                 <div style={{ color: 'red' }}>{feedbackFormik.errors.message}</div>
@@ -148,7 +178,7 @@ const Lab5 = () => {
                             ) : null}
                         </div>
 
-                        <Button type="submit">Отправить</Button>
+                        <Button type="submit">Отправить отзыв</Button>
                     </form>
                 </Container>
 
@@ -175,7 +205,7 @@ const Lab5 = () => {
     // Форма регистрации/авторизации если не авторизован
     return (
         <div>
-            <h2>Лабораторная 5</h2>
+            <h2>Лабораторная 5 - Авторизация и формы</h2>
             <Container>
                 <h3>{isRegistered ? 'Авторизация' : 'Регистрация'}</h3>
                 <form onSubmit={formik.handleSubmit} style={{ textAlign: 'left', margin: '1rem' }}>
@@ -189,7 +219,7 @@ const Lab5 = () => {
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                                 value={formik.values.name}
-                                style={{ margin: '0.5rem', padding: '0.5rem', width: '100%' }}
+                                style={{ margin: '0.5rem', padding: '0.5rem', width: 'calc(100% - 1rem)' }}
                             />
                             {formik.touched.name && formik.errors.name ? (
                                 <div style={{ color: 'red' }}>{formik.errors.name}</div>
@@ -206,7 +236,7 @@ const Lab5 = () => {
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                             value={formik.values.email}
-                            style={{ margin: '0.5rem', padding: '0.5rem', width: '100%' }}
+                            style={{ margin: '0.5rem', padding: '0.5rem', width: 'calc(100% - 1rem)' }}
                         />
                         {formik.touched.email && formik.errors.email ? (
                             <div style={{ color: 'red' }}>{formik.errors.email}</div>
@@ -222,21 +252,36 @@ const Lab5 = () => {
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                             value={formik.values.password}
-                            style={{ margin: '0.5rem', padding: '0.5rem', width: '100%' }}
+                            style={{ margin: '0.5rem', padding: '0.5rem', width: 'calc(100% - 1rem)' }}
                         />
                         {formik.touched.password && formik.errors.password ? (
                             <div style={{ color: 'red' }}>{formik.errors.password}</div>
                         ) : null}
                     </div>
 
+                    {isRegistered && (
+                        <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem' }}>
+                            <input
+                                id="rememberMe"
+                                name="rememberMe"
+                                type="checkbox"
+                                onChange={formik.handleChange}
+                                checked={formik.values.rememberMe}
+                                style={{ marginRight: '0.5rem' }}
+                            />
+                            <label htmlFor="rememberMe">Запомнить меня</label>
+                        </div>
+                    )}
+
                     <Button type="submit">{isRegistered ? 'Войти' : 'Зарегистрироваться'}</Button>
                     <Button type="button" onClick={() => setIsRegistered(!isRegistered)}>
-                        {isRegistered ? 'Зарегистрироваться' : 'Уже есть аккаунт?'}
+                        {isRegistered ? 'Создать новый аккаунт' : 'Уже есть аккаунт?'}
                     </Button>
                 </form>
 
                 <Message type="warning">
                     Для доступа к функциям необходимо авторизоваться.
+                    {isRegistered ? ' Используйте свои учетные данные для входа.' : ' Пожалуйста, зарегистрируйтесь.'}
                 </Message>
             </Container>
         </div>

@@ -5,7 +5,7 @@ import Message from '../components/Message';
 import Button from '../components/Button';
 import useLoginState from '../hooks/useLoginState';
 import { fetchUsers, updateUser, deleteUser } from '../store/usersSlice';
-import { fetchFeedbacks, updateFeedback, deleteFeedback } from '../store/feedbackSlice';
+import { fetchFeedbacks, updateFeedback, removeFeedback  } from '../store/feedbackSlice';
 
 const Lab6 = () => {
     const isLoggedIn = useLoginState();
@@ -91,7 +91,7 @@ const Lab6 = () => {
 
     const handleDeleteFeedback = (id) => {
         if (window.confirm('Вы уверены, что хотите удалить этот отзыв?')) {
-            dispatch(deleteFeedback(id));
+            dispatch(removeFeedback(id));
         }
     };
 

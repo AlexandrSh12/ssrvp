@@ -1,15 +1,14 @@
-// src/store/store.js
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
 import feedbackReducer from './feedbackSlice';
+import counterReducer from './counterSlice';
 
 export const store = configureStore({
     reducer: {
         auth: authReducer,
-        feedback: feedbackReducer
+        feedback: feedbackReducer,
+        counter: counterReducer
     }
 });
 
-// Для удобства можно также экспортировать типы
-export * from './authSlice';
-export * from './feedbackSlice';
+export default store;
