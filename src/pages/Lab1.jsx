@@ -3,7 +3,6 @@ import Counter from '../components/Counter'
 import AuthForm from '../components/AuthForm'
 import Message from '../components/Message'
 import Container from '../components/Container'
-
 const Lab1 = () => {
     const [notification, setNotification] = useState(false)
 
