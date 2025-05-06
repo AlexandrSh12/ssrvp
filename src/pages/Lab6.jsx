@@ -1,251 +1,233 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Container from '../components/Container';
 import Message from '../components/Message';
 import Button from '../components/Button';
+import ProfileForm from '../components/ProfileForm';
+import FeedbackForm from '../components/FeedbackForm';
+import FeedbackItem from '../components/FeedbackItem';
+import Modal from '../components/Modal';
+import LoadingSpinner from '../components/LoadingSpinner';
 import useLoginState from '../hooks/useLoginState';
-import { fetchUsers, updateUser, deleteUser } from '../store/usersSlice';
-import { fetchFeedbacks, updateFeedback, removeFeedback  } from '../store/feedbackSlice';
+import {
+    fetchUserProfile,
+    updateUserProfile,
+    deleteUserProfile,
+    fetchAllFeedbacks,
+    createFeedback,
+    updateFeedback,
+    deleteFeedback,
+    clearApiError
+} from '../store/apiSlice';
 
 const Lab6 = () => {
     const isLoggedIn = useLoginState();
     const dispatch = useDispatch();
-    const user = useSelector(state => state.auth.user);
-    const feedbacks = useSelector(state => state.feedback.feedbacks);
-    const users = useSelector(state => state.users.users);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [editUserId, setEditUserId] = useState(null);
-    const [editFeedbackId, setEditFeedbackId] = useState(null);
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        message: '',
-        rating: 5
-    });
+    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+    const [isEditFeedbackOpen, setIsEditFeedbackOpen] = useState(false);
+    const [currentFeedback, setCurrentFeedback] = useState(null);
+
+    const { user, feedbacks, isLoading, error } = useSelector(state => state.api);
+    const authUser = useSelector(state => state.auth.user);
 
     useEffect(() => {
         if (isLoggedIn) {
-            setLoading(true);
-            Promise.all([
-                dispatch(fetchUsers()),
-                dispatch(fetchFeedbacks())
-            ])
-                .then(() => setLoading(false))
-                .catch(err => {
-                    setError(err.message);
-                    setLoading(false);
-                });
+            dispatch(fetchAllFeedbacks());
+            dispatch(fetchUserProfile(1)); // Замените на реальный ID из authUser при интеграции
         }
     }, [dispatch, isLoggedIn]);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: name === 'rating' ? parseInt(value, 10) : value
-        });
+    useEffect(() => {
+        return () => {
+            dispatch(clearApiError());
+        };
+    }, [dispatch]);
+
+    const handleEditProfileClick = () => {
+        setIsEditProfileOpen(true);
     };
 
-    const handleEditUser = (user) => {
-        setEditUserId(user.id);
-        setFormData({
-            name: user.name,
-            email: user.email
-        });
+    const handleProfileSubmit = (values) => {
+        dispatch(updateUserProfile({ userId: 1, userData: values }))
+            .unwrap()
+            .then(() => {
+                setIsEditProfileOpen(false);
+            })
+            .catch(error => {
+                console.error('Failed to update profile:', error);
+            });
+    };
+
+    const handleDeleteProfile = () => {
+        if (window.confirm('Вы уверены, что хотите удалить свой профиль? Это действие нельзя отменить.')) {
+            dispatch(deleteUserProfile(1))
+                .unwrap()
+                .then(() => {
+                    alert('Профиль удален');
+                })
+                .catch(error => {
+                    console.error('Failed to delete profile:', error);
+                });
+        }
     };
 
     const handleEditFeedback = (feedback) => {
-        setEditFeedbackId(feedback.id);
-        setFormData({
-            message: feedback.message,
-            rating: feedback.rating
-        });
+        setCurrentFeedback(feedback);
+        setIsEditFeedbackOpen(true);
     };
 
-    const handleUpdateUser = () => {
-        dispatch(updateUser({
-            id: editUserId,
-            name: formData.name,
-            email: formData.email
-        }));
-        setEditUserId(null);
-        setFormData({ name: '', email: '', message: '', rating: 5 });
-    };
-
-    const handleUpdateFeedback = () => {
-        dispatch(updateFeedback({
-            id: editFeedbackId,
-            message: formData.message,
-            rating: formData.rating
-        }));
-        setEditFeedbackId(null);
-        setFormData({ name: '', email: '', message: '', rating: 5 });
-    };
-
-    const handleDeleteUser = (id) => {
-        if (window.confirm('Вы уверены, что хотите удалить этого пользователя?')) {
-            dispatch(deleteUser(id));
+    const handleFeedbackSubmit = (values) => {
+        if (currentFeedback) {
+            dispatch(updateFeedback({
+                feedbackId: currentFeedback.id,
+                feedbackData: {
+                    ...values,
+                    date: currentFeedback.date
+                }
+            }))
+                .unwrap()
+                .then(() => {
+                    setIsEditFeedbackOpen(false);
+                    setCurrentFeedback(null);
+                })
+                .catch(error => {
+                    console.error('Failed to update feedback:', error);
+                });
+        } else {
+            dispatch(createFeedback({
+                ...values,
+                userId: 1, // Замените на authUser.id при интеграции
+                date: new Date().toLocaleDateString()
+            }))
+                .unwrap()
+                .then(() => {
+                    alert('Отзыв успешно добавлен!');
+                })
+                .catch(error => {
+                    console.error('Failed to create feedback:', error);
+                });
         }
     };
 
-    const handleDeleteFeedback = (id) => {
+    const handleDeleteFeedback = (feedbackId) => {
         if (window.confirm('Вы уверены, что хотите удалить этот отзыв?')) {
-            dispatch(removeFeedback(id));
-        }
-    };
-
-    // Редактирование профиля пользователя
-    const handleEditProfile = () => {
-        setFormData({
-            name: user.name,
-            email: user.email
-        });
-        const currentUserId = users.find(u => u.email === user.email)?.id;
-        if (currentUserId) {
-            setEditUserId(currentUserId);
+            dispatch(deleteFeedback(feedbackId))
+                .unwrap()
+                .then(() => {
+                    alert('Отзыв удален');
+                })
+                .catch(error => {
+                    console.error('Failed to delete feedback:', error);
+                });
         }
     };
 
     if (!isLoggedIn) {
         return (
             <div>
-                <h2>Лабораторная 6</h2>
-                <Message type="warning">
-                    Для доступа к функциям необходимо авторизоваться в Лабораторной 5.
-                </Message>
-            </div>
-        );
-    }
-
-    if (loading) {
-        return (
-            <div>
-                <h2>Лабораторная 6</h2>
-                <Message type="info">Загрузка данных...</Message>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div>
-                <h2>Лабораторная 6</h2>
-                <Message type="error">Ошибка: {error}</Message>
+                <h2>Лабораторная 6 - REST API</h2>
+                <Container>
+                    <Message type="warning">
+                        Для доступа к функциям необходимо авторизоваться. Пожалуйста, перейдите на страницу Лабораторной 5 для входа.
+                    </Message>
+                </Container>
             </div>
         );
     }
 
     return (
         <div>
-            <h2>Лабораторная 6</h2>
-            <Container>
-                <h3>REST API и управление данными</h3>
-                <Message type="info">
-                    В этой лабораторной реализована работа с REST API для управления пользователями и отзывами.
-                    Данные имитируются через Redux store.
-                </Message>
-            </Container>
+            <h2>Лабораторная 6 - REST API</h2>
 
-            <Container>
-                <h3>Профиль пользователя</h3>
-                <div style={{ textAlign: 'left', margin: '1rem' }}>
-                    <p><strong>Имя:</strong> {user.name}</p>
-                    <p><strong>Email:</strong> {user.email}</p>
-                </div>
-                <Button onClick={handleEditProfile}>Редактировать профиль</Button>
-            </Container>
-
-            {editUserId && (
+            {error && (
                 <Container>
-                    <h3>Редактирование профиля</h3>
-                    <div style={{ textAlign: 'left', margin: '1rem' }}>
-                        <div>
-                            <label htmlFor="name">Имя:</label>
-                            <input
-                                id="name"
-                                name="name"
-                                type="text"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                style={{ margin: '0.5rem', padding: '0.5rem', width: '100%' }}
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="email">Email:</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                style={{ margin: '0.5rem', padding: '0.5rem', width: '100%' }}
-                            />
-                        </div>
-                        <Button onClick={handleUpdateUser}>Сохранить</Button>
-                        <Button onClick={() => {
-                            setEditUserId(null);
-                            setFormData({ name: '', email: '', message: '', rating: 5 });
-                        }}>Отмена</Button>
-                    </div>
+                    <Message type="error">
+                        Произошла ошибка: {error}
+                        <Button onClick={() => dispatch(clearApiError())}>Закрыть</Button>
+                    </Message>
                 </Container>
             )}
 
             <Container>
+                <h3>Профиль пользователя</h3>
+                {user ? (
+                    <div>
+                        <div style={{ textAlign: 'left', margin: '1rem' }}>
+                            <p><strong>Имя:</strong> {user.name}</p>
+                            <p><strong>Email:</strong> {user.email}</p>
+                            {user.bio && <p><strong>О себе:</strong> {user.bio}</p>}
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                            <Button onClick={handleEditProfileClick}>Редактировать профиль</Button>
+                            <Button onClick={handleDeleteProfile}>Удалить профиль</Button>
+                        </div>
+                    </div>
+                ) : (
+                    <Message type="info">Профиль не найден</Message>
+                )}
+            </Container>
+
+            <Container>
+                <h3>Добавить отзыв</h3>
+                <FeedbackForm
+                    initialValues={{ name: authUser?.name || '', message: '', rating: 5 }}
+                    onSubmit={handleFeedbackSubmit}
+                    isLoading={isLoading}
+                />
+            </Container>
+
+            <Container>
                 <h3>Список отзывов</h3>
+                {isLoading && <LoadingSpinner />}
+
                 {feedbacks.length === 0 ? (
                     <Message type="info">Отзывов пока нет</Message>
                 ) : (
                     <div style={{ textAlign: 'left' }}>
                         {feedbacks.map(feedback => (
-                            <div key={feedback.id} style={{ margin: '1rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '4px' }}>
-                                {editFeedbackId === feedback.id ? (
-                                    <div>
-                                        <div>
-                                            <label htmlFor="message">Сообщение:</label>
-                                            <textarea
-                                                id="message"
-                                                name="message"
-                                                value={formData.message}
-                                                onChange={handleInputChange}
-                                                style={{ margin: '0.5rem', padding: '0.5rem', width: '100%', minHeight: '100px' }}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="rating">Оценка (1-5):</label>
-                                            <input
-                                                id="rating"
-                                                name="rating"
-                                                type="number"
-                                                min="1"
-                                                max="5"
-                                                value={formData.rating}
-                                                onChange={handleInputChange}
-                                                style={{ margin: '0.5rem', padding: '0.5rem', width: '100px' }}
-                                            />
-                                        </div>
-                                        <Button onClick={handleUpdateFeedback}>Сохранить</Button>
-                                        <Button onClick={() => {
-                                            setEditFeedbackId(null);
-                                            setFormData({ name: '', email: '', message: '', rating: 5 });
-                                        }}>Отмена</Button>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <h4>{feedback.name} <small>({feedback.date})</small></h4>
-                                        <p>{feedback.message}</p>
-                                        <div>Оценка: {feedback.rating}/5</div>
-                                        <div style={{ marginTop: '1rem' }}>
-                                            <Button onClick={() => handleEditFeedback(feedback)}>Редактировать</Button>
-                                            <Button onClick={() => handleDeleteFeedback(feedback.id)}>Удалить</Button>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
+                            <FeedbackItem
+                                key={feedback.id}
+                                feedback={feedback}
+                                onEdit={handleEditFeedback}
+                                onDelete={handleDeleteFeedback}
+                                isCurrentUser={true} // Замените на проверку feedback.userId === authUser.id
+                            />
                         ))}
                     </div>
                 )}
             </Container>
+
+            <Modal
+                isOpen={isEditProfileOpen}
+                onClose={() => setIsEditProfileOpen(false)}
+                title="Редактирование профиля"
+            >
+                {user && (
+                    <ProfileForm
+                        initialValues={user}
+                        onSubmit={handleProfileSubmit}
+                        isLoading={isLoading}
+                    />
+                )}
+            </Modal>
+
+            <Modal
+                isOpen={isEditFeedbackOpen}
+                onClose={() => {
+                    setIsEditFeedbackOpen(false);
+                    setCurrentFeedback(null);
+                }}
+                title="Редактирование отзыва"
+            >
+                {currentFeedback && (
+                    <FeedbackForm
+                        initialValues={currentFeedback}
+                        onSubmit={handleFeedbackSubmit}
+                        isLoading={isLoading}
+                        isEditing={true}
+                    />
+                )}
+            </Modal>
         </div>
     );
 };

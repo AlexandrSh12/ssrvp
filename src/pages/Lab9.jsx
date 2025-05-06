@@ -4,7 +4,7 @@ import Container from '../components/Container';
 import Message from '../components/Message';
 import Button from '../components/Button';
 import useLoginState from '../hooks/useLoginState';
-import { useGetFeedbacksQuery, useDeleteFeedbackMutation, useUpdateFeedbackMutation } from '../store/apiSlice';
+//import { useGetFeedbacksQuery, useDeleteFeedbackMutation, useUpdateFeedbackMutation } from '../store/apiSlice';
 
 const Lab9 = () => {
     const isLoggedIn = useLoginState();

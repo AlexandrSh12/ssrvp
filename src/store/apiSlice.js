@@ -1,114 +1,206 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+// src/store/apiSlice.js
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { feedbackApi, usersApi } from './api.js';
 
-// Базовый URL API (в реальном проекте вынес бы в .env)
-const BASE_URL = 'http://localhost:3001/api';
-
-export const apiSlice = createApi({
-    reducerPath: 'api',
-    baseQuery: fetchBaseQuery({
-        baseUrl: BASE_URL,
-        prepareHeaders: (headers, { getState }) => {
-            // Добавляем токен авторизации из хранилища
-            const token = getState().auth.token;
-            if (token) {
-                headers.set('Authorization', `Bearer ${token}`);
-            }
-            return headers;
+// Асинхронные thunks для работы с пользователями
+export const fetchUserProfile = createAsyncThunk(
+    'api/fetchUserProfile',
+    async (userId, { rejectWithValue }) => {
+        try {
+            return await usersApi.getUserProfile(userId);
+        } catch (error) {
+            return rejectWithValue(error.message);
         }
-    }),
-    tagTypes: ['User', 'Feedback'],
-    endpoints: (builder) => ({
-        // Аутентификация
-        login: builder.mutation({
-            query: (credentials) => ({
-                url: '/auth/login',
-                method: 'POST',
-                body: credentials
-            }),
-            invalidatesTags: ['User']
-        }),
+    }
+);
 
-        logout: builder.mutation({
-            query: () => ({
-                url: '/auth/logout',
-                method: 'POST'
-            }),
-            invalidatesTags: ['User']
-        }),
+export const updateUserProfile = createAsyncThunk(
+    'api/updateUserProfile',
+    async ({ userId, userData }, { rejectWithValue }) => {
+        try {
+            return await usersApi.updateUserProfile(userId, userData);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
 
-        register: builder.mutation({
-            query: (userData) => ({
-                url: '/auth/register',
-                method: 'POST',
-                body: userData
+export const deleteUserProfile = createAsyncThunk(
+    'api/deleteUserProfile',
+    async (userId, { rejectWithValue }) => {
+        try {
+            await usersApi.deleteUser(userId);
+            return userId;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+// Асинхронные thunks для работы с отзывами
+export const fetchAllFeedbacks = createAsyncThunk(
+    'api/fetchAllFeedbacks',
+    async (_, { rejectWithValue }) => {
+        try {
+            return await feedbackApi.getAllFeedbacks();
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const createFeedback = createAsyncThunk(
+    'api/createFeedback',
+    async (feedbackData, { rejectWithValue }) => {
+        try {
+            return await feedbackApi.createFeedback(feedbackData);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const updateFeedback = createAsyncThunk(
+    'api/updateFeedback',
+    async ({ feedbackId, feedbackData }, { rejectWithValue }) => {
+        try {
+            return await feedbackApi.updateFeedback(feedbackId, feedbackData);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const deleteFeedback = createAsyncThunk(
+    'api/deleteFeedback',
+    async (feedbackId, { rejectWithValue }) => {
+        try {
+            await feedbackApi.deleteFeedback(feedbackId);
+            return feedbackId;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+// Slice для состояния API
+const apiSlice = createSlice({
+    name: 'api',
+    initialState: {
+        user: null,
+        feedbacks: [],
+        isLoading: false,
+        error: null,
+    },
+    reducers: {
+        clearApiError: (state) => {
+            state.error = null;
+        },
+    },
+    extraReducers: (builder) => {
+        builder
+            // Обработка запросов профиля пользователя
+            .addCase(fetchUserProfile.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
             })
-        }),
+            .addCase(fetchUserProfile.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.user = action.payload;
+            })
+            .addCase(fetchUserProfile.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
 
-        // Пользователи
-        getCurrentUser: builder.query({
-            query: () => '/users/me',
-            providesTags: ['User']
-        }),
+            // Обработка обновления профиля
+            .addCase(updateUserProfile.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(updateUserProfile.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.user = action.payload;
+            })
+            .addCase(updateUserProfile.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
 
-        updateUser: builder.mutation({
-            query: (updatedUser) => ({
-                url: `/users/${updatedUser.id}`,
-                method: 'PUT',
-                body: updatedUser
-            }),
-            invalidatesTags: ['User']
-        }),
+            // Обработка удаления профиля
+            .addCase(deleteUserProfile.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(deleteUserProfile.fulfilled, (state) => {
+                state.isLoading = false;
+                state.user = null;
+            })
+            .addCase(deleteUserProfile.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
 
-        // Отзывы
-        getFeedbacks: builder.query({
-            query: () => '/feedbacks',
-            providesTags: (result) =>
-                result
-                    ? [...result.map(({ id }) => ({ type: 'Feedback', id })), 'Feedback']
-                    : ['Feedback']
-        }),
+            // Обработка запросов отзывов
+            .addCase(fetchAllFeedbacks.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchAllFeedbacks.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.feedbacks = action.payload;
+            })
+            .addCase(fetchAllFeedbacks.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
 
-        addFeedback: builder.mutation({
-            query: (feedback) => ({
-                url: '/feedbacks',
-                method: 'POST',
-                body: feedback
-            }),
-            invalidatesTags: ['Feedback']
-        }),
+            // Обработка создания отзыва
+            .addCase(createFeedback.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(createFeedback.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.feedbacks.push(action.payload);
+            })
+            .addCase(createFeedback.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
 
-        updateFeedback: builder.mutation({
-            query: ({ id, ...feedback }) => ({
-                url: `/feedbacks/${id}`,
-                method: 'PUT',
-                body: feedback
-            }),
-            invalidatesTags: (result, error, { id }) => [{ type: 'Feedback', id }]
-        }),
+            // Обработка обновления отзыва
+            .addCase(updateFeedback.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(updateFeedback.fulfilled, (state, action) => {
+                state.isLoading = false;
+                const index = state.feedbacks.findIndex(f => f.id === action.payload.id);
+                if (index !== -1) {
+                    state.feedbacks[index] = action.payload;
+                }
+            })
+            .addCase(updateFeedback.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
 
-        deleteFeedback: builder.mutation({
-            query: (id) => ({
-                url: `/feedbacks/${id}`,
-                method: 'DELETE'
-            }),
-            invalidatesTags: (result, error, id) => [{ type: 'Feedback', id }]
-        })
-    })
+            // Обработка удаления отзыва
+            .addCase(deleteFeedback.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(deleteFeedback.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.feedbacks = state.feedbacks.filter(f => f.id !== action.payload);
+            })
+            .addCase(deleteFeedback.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            });
+    },
 });
 
-// Экспорт хуков для использования в компонентах
-export const {
-    useLoginMutation,
-    useLogoutMutation,
-    useRegisterMutation,
-    useGetCurrentUserQuery,
-    useUpdateUserMutation,
-    useGetFeedbacksQuery,
-    useAddFeedbackMutation,
-    useUpdateFeedbackMutation,
-    useDeleteFeedbackMutation
-} = apiSlice;
-
-// Для интеграции с существующими слайсами
-export const apiMiddleware = apiSlice.middleware;
-export const apiReducer = apiSlice.reducer;
+export const { clearApiError } = apiSlice.actions;
+export default apiSlice.reducer;

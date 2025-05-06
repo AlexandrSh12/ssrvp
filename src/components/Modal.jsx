@@ -1,75 +1,74 @@
 // src/components/Modal.jsx
 import React, { useEffect } from 'react';
+import Button from './Button';
 
 const Modal = ({ isOpen, onClose, title, children }) => {
+    // Закрытие модального окна по нажатию Escape
     useEffect(() => {
-        // Блокируем прокрутку страницы при открытом модальном окне
+        const handleEscape = (event) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscape);
+        }
+
+        return () => {
+            document.removeEventListener('keydown', handleEscape);
+        };
+    }, [isOpen, onClose]);
+
+    // Запретить прокрутку основного контента при открытом модальном окне
+    useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
         } else {
-            document.body.style.overflow = 'unset';
+            document.body.style.overflow = 'auto';
         }
 
-        // Очистка при размонтировании
         return () => {
-            document.body.style.overflow = 'unset';
+            document.body.style.overflow = 'auto';
         };
     }, [isOpen]);
 
     if (!isOpen) return null;
 
-    const backdropStyle = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-    };
-
-    const modalStyle = {
-        backgroundColor: 'white',
-        borderRadius: '5px',
-        padding: '20px',
-        maxWidth: '500px',
-        width: '90%',
-        maxHeight: '80vh',
-        overflowY: 'auto',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        position: 'relative',
-        color: '#333',
-    };
-
-    const headerStyle = {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '15px',
-        borderBottom: '1px solid #eee',
-        paddingBottom: '10px',
-    };
-
-    const closeButtonStyle = {
-        background: 'none',
-        border: 'none',
-        fontSize: '20px',
-        cursor: 'pointer',
-        padding: '0',
-        color: '#333',
-    };
-
     return (
-        <div style={backdropStyle} onClick={onClose}>
-            <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-                <div style={headerStyle}>
+        <div
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000,
+            }}
+            onClick={onClose}
+        >
+            <div
+                style={{
+                    backgroundColor: 'white',
+                    padding: '2rem',
+                    borderRadius: '8px',
+                    width: '90%',
+                    maxWidth: '500px',
+                    maxHeight: '90vh',
+                    overflow: 'auto',
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+                }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                     <h3 style={{ margin: 0 }}>{title}</h3>
-                    <button style={closeButtonStyle} onClick={onClose}>×</button>
+                    <Button onClick={onClose} style={{ padding: '0.25rem 0.5rem' }}>✕</Button>
                 </div>
-                <div>{children}</div>
+                {children}
             </div>
         </div>
     );

@@ -10,8 +10,8 @@ import Container from '../components/Container';
 import Message from '../components/Message';
 import Button from '../components/Button';
 import useLoginState from '../hooks/useLoginState';
-import { fetchUsers } from '../store/usersSlice';
-import { fetchFeedbacks, removeFeedback } from '../store/feedbackSlice';
+//import { fetchUserProfile } from '../store/usersSlice';
+import { fetchFeedbacks, deleteFeedback } from '../store/feedbackSlice';
 
 // Компонент для фильтрации колонок
 const DefaultColumnFilter = ({

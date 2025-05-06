@@ -1,6 +1,6 @@
 // src/store/feedbackSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { feedbacksApi } from '../api/api';
+import { feedbackApi } from './api.js';
 
 // Асинхронный thunk для получения всех отзывов
 export const fetchFeedbacks = createAsyncThunk(

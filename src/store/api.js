@@ -1,63 +1,82 @@
-// src/api/api.js
-import axios from 'axios';
-
+// src/store/api.js
+// Базовый URL API сервера
 const API_URL = 'http://localhost:3001';
 
-// Создаем экземпляр axios с базовым URL
-const api = axios.create({
-    baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json'
+// Общая функция для выполнения запросов
+const fetchWithAuth = async (endpoint, options = {}) => {
+    // Добавляем заголовки по умолчанию
+    const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+    };
+
+    // Выполняем запрос
+    const response = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers,
+    });
+
+    // Если статус не OK, выбрасываем ошибку
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({
+            message: `Ошибка HTTP: ${response.status}`,
+        }));
+        throw new Error(error.message || `Ошибка HTTP: ${response.status}`);
     }
-});
+
+    // Если ответ пустой, возвращаем null
+    if (response.status === 204) {
+        return null;
+    }
+
+    // Парсим JSON
+    return await response.json();
+};
 
 // API для работы с пользователями
 export const usersApi = {
-    // Получить всех пользователей
-    getAll: () => api.get('/users'),
+    // Получить профиль пользователя по ID
+    getUserProfile: (userId) => fetchWithAuth(`/users/${userId}`),
 
-    // Получить одного пользователя по ID
-    getById: (id) => api.get(`/users/${id}`),
-
-    // Создать пользователя
-    create: (userData) => api.post('/users', userData),
-
-    // Обновить данные пользователя
-    update: (id, userData) => api.put(`/users/${id}`, userData),
+    // Обновить профиль пользователя
+    updateUserProfile: (userId, userData) => fetchWithAuth(`/users/${userId}`, {
+        method: 'PUT',
+        body: JSON.stringify(userData),
+    }),
 
     // Удалить пользователя
-    delete: (id) => api.delete(`/users/${id}`)
+    deleteUser: (userId) => fetchWithAuth(`/users/${userId}`, {
+        method: 'DELETE',
+    }),
 };
 
 // API для работы с отзывами
-export const feedbacksApi = {
+export const feedbackApi = {
     // Получить все отзывы
-    getAll: () => api.get('/feedbacks'),
+    getAllFeedbacks: () => fetchWithAuth('/feedbacks'),
 
-    // Получить один отзыв по ID
-    getById: (id) => api.get(`/feedbacks/${id}`),
+    // Получить отзыв по ID
+    getFeedback: (feedbackId) => fetchWithAuth(`/feedbacks/${feedbackId}`),
 
-    // Создать отзыв
-    create: (feedbackData) => api.post('/feedbacks', feedbackData),
+    // Создать новый отзыв
+    createFeedback: (feedbackData) => fetchWithAuth('/feedbacks', {
+        method: 'POST',
+        body: JSON.stringify(feedbackData),
+    }),
 
     // Обновить отзыв
-    update: (id, feedbackData) => api.put(`/feedbacks/${id}`, feedbackData),
+    updateFeedback: (feedbackId, feedbackData) => fetchWithAuth(`/feedbacks/${feedbackId}`, {
+        method: 'PUT',
+        body: JSON.stringify(feedbackData),
+    }),
 
     // Удалить отзыв
-    delete: (id) => api.delete(`/feedbacks/${id}`)
-};
-
-// API для работы с профилем
-export const profileApi = {
-    // Получить профиль
-    get: () => api.get('/profile'),
-
-    // Обновить профиль
-    update: (profileData) => api.put('/profile', profileData)
+    deleteFeedback: (feedbackId) => fetchWithAuth(`/feedbacks/${feedbackId}`, {
+        method: 'DELETE',
+    }),
 };
 
 export default {
     users: usersApi,
-    feedbacks: feedbacksApi,
-    profile: profileApi
+    feedbacks: feedbackApi,
 };

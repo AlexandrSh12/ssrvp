@@ -3,9 +3,10 @@ import React from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Button from './Button';
+import LoadingSpinner from './LoadingSpinner';
 
-const FeedbackForm = ({ initialValues, onSubmit, submitButtonText = 'Отправить' }) => {
-    // Схема валидации
+const FeedbackForm = ({ initialValues, onSubmit, isLoading, isEditing = false }) => {
+    // Схема валидации для отзыва
     const validationSchema = Yup.object({
         name: Yup.string().required('Имя обязательно'),
         message: Yup.string()
@@ -25,32 +26,14 @@ const FeedbackForm = ({ initialValues, onSubmit, submitButtonText = 'Отпра�
             rating: 5,
         },
         validationSchema,
-        onSubmit: (values, { resetForm }) => {
+        onSubmit: (values) => {
             onSubmit(values);
-            resetForm();
         },
         enableReinitialize: true,
     });
 
-    const inputStyle = {
-        margin: '0.5rem',
-        padding: '0.5rem',
-        width: 'calc(100% - 1rem)',
-    };
-
-    const textareaStyle = {
-        ...inputStyle,
-        minHeight: '100px',
-    };
-
-    const errorStyle = {
-        color: 'red',
-        fontSize: '0.8rem',
-        marginLeft: '0.5rem',
-    };
-
     return (
-        <form onSubmit={formik.handleSubmit} style={{ textAlign: 'left' }}>
+        <form onSubmit={formik.handleSubmit} style={{ textAlign: 'left', margin: '1rem' }}>
             <div>
                 <label htmlFor="name">Имя:</label>
                 <input
@@ -60,11 +43,11 @@ const FeedbackForm = ({ initialValues, onSubmit, submitButtonText = 'Отпра�
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.name}
-                    style={inputStyle}
+                    style={{ margin: '0.5rem', padding: '0.5rem', width: 'calc(100% - 1rem)' }}
                 />
-                {formik.touched.name && formik.errors.name && (
-                    <div style={errorStyle}>{formik.errors.name}</div>
-                )}
+                {formik.touched.name && formik.errors.name ? (
+                    <div style={{ color: 'red' }}>{formik.errors.name}</div>
+                ) : null}
             </div>
 
             <div>
@@ -75,11 +58,11 @@ const FeedbackForm = ({ initialValues, onSubmit, submitButtonText = 'Отпра�
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.message}
-                    style={textareaStyle}
+                    style={{ margin: '0.5rem', padding: '0.5rem', width: 'calc(100% - 1rem)', minHeight: '100px' }}
                 />
-                {formik.touched.message && formik.errors.message && (
-                    <div style={errorStyle}>{formik.errors.message}</div>
-                )}
+                {formik.touched.message && formik.errors.message ? (
+                    <div style={{ color: 'red' }}>{formik.errors.message}</div>
+                ) : null}
             </div>
 
             <div>
@@ -93,14 +76,16 @@ const FeedbackForm = ({ initialValues, onSubmit, submitButtonText = 'Отпра�
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.rating}
-                    style={{ ...inputStyle, width: '100px' }}
+                    style={{ margin: '0.5rem', padding: '0.5rem', width: '100px' }}
                 />
-                {formik.touched.rating && formik.errors.rating && (
-                    <div style={errorStyle}>{formik.errors.rating}</div>
-                )}
+                {formik.touched.rating && formik.errors.rating ? (
+                    <div style={{ color: 'red' }}>{formik.errors.rating}</div>
+                ) : null}
             </div>
 
-            <Button type="submit">{submitButtonText}</Button>
+            <Button type="submit" disabled={isLoading}>
+                {isLoading ? <LoadingSpinner size="small" /> : isEditing ? 'Обновить отзыв' : 'Отправить отзыв'}
+            </Button>
         </form>
     );
 };
