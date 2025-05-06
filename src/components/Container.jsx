@@ -1,8 +1,11 @@
+import React from 'react'
+
 const Container = ({ children }) => {
     return (
-        <div style={{ padding: '1rem', border: '1px solid #ddd', borderRadius: '8px' }}>
+        <div className="container">
             {children}
         </div>
     )
 }
+
 export default Container

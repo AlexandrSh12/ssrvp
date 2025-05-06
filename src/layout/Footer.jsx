@@ -1,8 +1,11 @@
+import React from 'react'
+
 const Footer = () => {
     return (
-        <footer style={{ backgroundColor: '#eee', padding: '1rem', textAlign: 'center' }}>
+        <footer>
             <p>© 2025 React Учебный Проект</p>
         </footer>
     )
 }
+
 export default Footer
