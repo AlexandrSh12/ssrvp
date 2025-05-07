@@ -4,7 +4,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-    fetchFeedback,
+    fetchFeedbacks,
     deleteFeedback,
     toggleFeedbackStatus
 } from '../redux/feedbackSlice';
@@ -141,7 +141,7 @@ const AdminPanel = ({ currentUser }) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(fetchFeedback());
+        dispatch(fetchFeedbacks());
     }, [dispatch]);
 
     // Обработчики для пользователей
@@ -330,7 +330,7 @@ const UserFeedbackView = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(fetchFeedback());
+        dispatch(fetchFeedbacks());
     }, [dispatch]);
 
     const feedbackColumns = useMemo(

@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './authSlice.js';
+import authReducer from './authSlice';
 import feedbackReducer from './feedbackSlice';
-import counterReducer from './counterSlice' // Импорт counterSlice
+import counterReducer from './counterSlice';
 
 export const store = configureStore({
     reducer: {
@@ -9,6 +9,10 @@ export const store = configureStore({
         feedback: feedbackReducer,
         counter: counterReducer
     },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: false // Отключаем проверку на сериализуемость для большей гибкости
+        })
 });
 
 export default store;

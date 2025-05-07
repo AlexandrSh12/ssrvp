@@ -24,5 +24,71 @@
       "rating": 4,
       "date": "06.05.2025"
     }
+  ],
+  "feedback": [
+    {
+      "id": 1,
+      "name": "Иван Петров",
+      "email": "ivan@example.com",
+      "message": "Отличный сайт, очень понравился интерфейс!",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "name": "Мария Иванова",
+      "email": "maria@example.com",
+      "message": "Хотелось бы больше информации о проекте.",
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "name": "Алексей Сидоров",
+      "email": "alex@example.com",
+      "message": "Нашел ошибку в разделе контактов.",
+      "status": "blocked"
+    },
+    {
+      "id": 4,
+      "name": "Ольга Смирнова",
+      "email": "olga@example.com",
+      "message": "Спасибо за быстрый ответ поддержки!",
+      "status": "active"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "password": "admin",
+      "role": "admin",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "username": "user",
+      "email": "user@example.com",
+      "password": "user",
+      "role": "user",
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "username": "john_doe",
+      "email": "john@example.com",
+      "password": "password123",
+      "role": "user",
+      "status": "active"
+    },
+    {
+      "id": 4,
+      "username": "jane_smith",
+      "email": "jane@example.com",
+      "password": "password456",
+      "role": "user",
+      "status": "blocked"
+    }
   ]
 }
+
+
