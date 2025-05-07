@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { increment, decrement } from '../store/counterSlice'
+import { increment, decrement } from '../redux/counterSlice'
 import { ThemeContext } from '../context/ThemeContext'
 import useMountLogger from '../hooks/useMountLogger'
 

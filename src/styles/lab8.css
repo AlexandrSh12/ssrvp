@@ -1,0 +1,168 @@
+/* Стили для лабораторной работы 8 */
+.admin-panel {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tab-buttons {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s;
+}
+
+.tab-button.active {
+    background-color: #e0e0e0;
+    font-weight: bold;
+    border-bottom: none;
+}
+
+.tab-content {
+    border: 1px solid #ddd;
+    border-radius: 0 4px 4px 4px;
+    padding: 15px;
+    background-color: #fff;
+}
+
+.table-container {
+    overflow-x: auto;
+    position: relative;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+.table {
+    display: table;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.thead {
+    background-color: #f5f5f5;
+}
+
+.tr {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+}
+
+.th, .td {
+    padding: 10px 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+}
+
+.th {
+    font-weight: bold;
+    background-color: #f5f5f5;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    transition: background-color 0.3s;
+}
+
+.action-button:hover {
+    background-color: #e0e0e0;
+}
+
+.action-button.delete {
+    background-color: #ffeeee;
+}
+
+.action-button.delete:hover {
+    background-color: #ffdddd;
+}
+
+.role-switcher {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+}
+
+.role-switcher button {
+    padding: 8px 16px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.role-switcher button:hover {
+    background-color: #3a80d2;
+}
+
+.user-feedback-view {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Для мобильных устройств фиксируем первую колонку */
+@media (max-width: 768px) {
+    .td:first-child,
+    .th:first-child {
+        position: sticky;
+        left: 0;
+        background-color: #fff;
+        z-index: 1;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .th:first-child {
+        background-color: #f5f5f5;
+    }
+}
+
+/* Стили для отображения состояния загрузки */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+/* Стили для сообщений об ошибках */
+.error-message {
+    color: #d32f2f;
+    padding: 15px;
+    background-color: #ffebee;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}

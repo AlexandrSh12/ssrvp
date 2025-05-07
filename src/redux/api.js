@@ -1,4 +1,4 @@
-// src/store/api.js
+
 // Базовый URL API сервера
 const API_URL = 'http://localhost:3001';
 
