@@ -1,142 +1,123 @@
+// src/pages/Lab9.jsx
 import React from 'react';
-import { useSelector } from 'react-redux';
-import Container from '../components/Container';
+import { useGetPostsQuery } from '../redux/apiSlice';
+import LoadingSpinner from '../components/LoadingSpinner';
 import Message from '../components/Message';
 import Button from '../components/Button';
-import useLoginState from '../hooks/useLoginState';
-//import { useGetFeedbacksQuery, useDeleteFeedbackMutation, useUpdateFeedbackMutation } from '../store/apiSlice';
 
 const Lab9 = () => {
-    const isLoggedIn = useLoginState();
-    const { user } = useSelector(state => state.auth);
+    // Используем RTK Query для получения данных
+    const { data: posts, isLoading, isFetching, isError, error, refetch } = useGetPostsQuery();
 
-    const {
-        data: feedbacks,
-        isLoading,
-        isError,
-        error,
-        refetch
-    } = useGetFeedbacksQuery();
-
-    const [deleteFeedback, { isLoading: isDeleting }] = useDeleteFeedbackMutation();
-    const [updateFeedback, { isLoading: isUpdating }] = useUpdateFeedbackMutation();
-
-    const handleDelete = async (id) => {
-        if (window.confirm('Вы уверены, что хотите удалить этот отзыв?')) {
-            try {
-                await deleteFeedback(id).unwrap();
-            } catch (err) {
-                console.error('Ошибка при удалении:', err);
-            }
-        }
+    // Обработчик кнопки обновления данных
+    const handleRefresh = () => {
+        // Вызываем refetch и логируем процесс для отладки
+        console.log('Начинаем обновление данных...');
+        refetch()
+            .then(result => console.log('Данные обновлены:', result))
+            .catch(err => console.error('Ошибка при обновлении:', err));
     };
-
-    const handleMarkAsFavorite = async (feedback) => {
-        try {
-            await updateFeedback({
-                id: feedback.id,
-                isFavorite: !feedback.isFavorite
-            }).unwrap();
-        } catch (err) {
-            console.error('Ошибка при обновлении:', err);
-        }
-    };
-
-    if (!isLoggedIn) {
-        return (
-            <div>
-                <h2>Лабораторная 9</h2>
-                <Message type="warning">
-                    Для доступа к функциям необходимо авторизоваться в Лабораторной 5.
-                </Message>
-            </div>
-        );
-    }
 
     return (
-        <div>
-            <h2>Лабораторная 9</h2>
+        <div className="lab-content">
+            <h1>Лабораторная работа 9</h1>
 
-            <Container>
-                <h3>Тестирование и RTK Query</h3>
-                <p>В этой лабораторной работе реализован переход на RTK Query для работы с API и добавлены тесты компонентов.</p>
-                <div style={{ marginTop: '1rem' }}>
-                    <Button onClick={refetch} disabled={isLoading}>
-                        {isLoading ? 'Загрузка...' : 'Обновить данные'}
-                    </Button>
+            {/* Секция 1: Тест компонента кнопки */}
+            <section>
+                <h2>Часть 1: Тест компонента кнопки</h2>
+                <p>
+                    Для компонента Button был написан тест, проверяющий следующую функциональность:
+                </p>
+                <ul>
+                    <li>Корректный рендеринг текста кнопки</li>
+                    <li>Вызов функции onClick при клике на кнопку</li>
+                    <li>Правильное значение type по умолчанию</li>
+                    <li>Возможность изменить тип кнопки через пропс</li>
+                </ul>
+                <p>Полный код теста можно найти в файле Button.test.jsx</p>
+            </section>
+
+            {/* Секция 2: Работа с RTK Query */}
+            <section>
+                <h2>Часть 2: Список постов с использованием RTK Query</h2>
+
+                <div style={{ marginBottom: '20px' }}>
+                    <Button onClick={handleRefresh}>Обновить данные</Button>
                 </div>
-            </Container>
 
-            <Container>
-                <h3>Информация о пользователе</h3>
-                <div style={{ textAlign: 'left', margin: '1rem' }}>
-                    <p><strong>Имя:</strong> {user.name}</p>
-                    <p><strong>Email:</strong> {user.email}</p>
-                </div>
-            </Container>
-
-            <Container>
-                <h3>Список отзывов (с RTK Query)</h3>
-                {isLoading ? (
-                    <Message type="info">Загрузка данных...</Message>
-                ) : isError ? (
-                    <Message type="error">Ошибка: {error?.message || 'Что-то пошло не так'}</Message>
-                ) : !feedbacks || feedbacks.length === 0 ? (
-                    <Message type="info">Отзывов пока нет</Message>
-                ) : (
-                    <div style={{ textAlign: 'left' }}>
-                        {feedbacks.map(feedback => (
-                            <div
-                                key={feedback.id}
-                                style={{
-                                    margin: '1rem',
-                                    padding: '1rem',
-                                    border: '1px solid #ddd',
-                                    borderRadius: '4px',
-                                    backgroundColor: feedback.isFavorite ? '#fffde7' : 'transparent'
-                                }}
-                            >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <h4>{feedback.name} <small>({feedback.date})</small></h4>
-                                    <div>
-                                        <span style={{ marginRight: '1rem' }}>Оценка: {feedback.rating}/5</span>
-                                        {feedback.isFavorite && <span style={{ color: '#ffc107' }}>★ Избранное</span>}
-                                    </div>
-                                </div>
-                                <p>{feedback.message}</p>
-                                <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-                                    <Button
-                                        onClick={() => handleMarkAsFavorite(feedback)}
-                                        disabled={isUpdating}
-                                    >
-                                        {feedback.isFavorite ? 'Убрать из избранного' : 'В избранное'}
-                                    </Button>
-                                    <Button
-                                        onClick={() => handleDelete(feedback.id)}
-                                        disabled={isDeleting}
-                                    >
-                                        Удалить
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
+                {/* Отображение состояния загрузки */}
+                {(isLoading || isFetching) && (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                        <LoadingSpinner size="large" />
+                        <p>Загрузка данных...</p>
                     </div>
                 )}
-            </Container>
 
-            <Container>
-                <h3>Тестирование компонентов</h3>
-                <p>В проекте добавлены тесты для следующих компонентов:</p>
-                <ul style={{ textAlign: 'left', listStylePosition: 'inside' }}>
-                    <li>Button.test.jsx - тестирование кнопки</li>
-                    <li>Counter.test.jsx - тестирование счетчика</li>
-                    <li>Message.test.jsx - тестирование компонента сообщений</li>
-                    <li>AuthForm.test.jsx - тестирование формы авторизации</li>
-                </ul>
-                <Message type="success">
-                    Все тесты успешно пройдены!
-                </Message>
-            </Container>
+                {/* Отображение ошибки */}
+                {isError && (
+                    <Message type="error">
+                        <h3>Ошибка при загрузке данных</h3>
+                        <p>{error?.data || error?.error || 'Произошла ошибка соединения. Пожалуйста, проверьте ваше подключение и доступность сервера.'}</p>
+                    </Message>
+                )}
+
+                {/* Отображение данных */}
+                {!isLoading && !isError && posts && (
+                    <>
+                        <Message type="success">
+                            <p>Данные успешно загружены!</p>
+                        </Message>
+
+                        <div className="posts-list">
+                            <h3>Список постов ({posts.length})</h3>
+                            {posts.map(post => (
+                                <div key={post.id} className="post-item" style={{
+                                    border: '1px solid #ddd',
+                                    borderRadius: '4px',
+                                    padding: '15px',
+                                    marginBottom: '10px'
+                                }}>
+                                    <h4>{post.title}</h4>
+                                    <p>{post.body}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </section>
+
+            {/* Секция 3: Описание реализации */}
+            <section>
+                <h2>Описание реализации</h2>
+                <p>
+                    В рамках этой лабораторной работы были выполнены следующие задачи:
+                </p>
+                <ol>
+                    <li>
+                        <strong>Написан тест для компонента кнопки</strong> с использованием библиотеки
+                        testing-library/react. Тест проверяет основную функциональность компонента.
+                    </li>
+                    <li>
+                        <strong>Реализован RTK Query</strong> для взаимодействия с сервером.
+                        Создан файл apiSlice.js с определением эндпоинтов для работы с постами.
+                    </li>
+                    <li>
+                        <strong>Добавлен middleware RTK Query</strong> в существующий Redux store.
+                    </li>
+                    <li>
+                        <strong>Реализовано отображение данных</strong> с использованием хука useGetPostsQuery,
+                        который предоставляет доступ к данным и состояниям запроса.
+                    </li>
+                    <li>
+                        <strong>Обработаны различные состояния запроса</strong>:
+                        <ul>
+                            <li>isLoading & isFetching - для отображения спиннера загрузки</li>
+                            <li>isError - для отображения сообщения об ошибке</li>
+                            <li>Успешный запрос - для отображения данных</li>
+                        </ul>
+                    </li>
+                </ol>
+            </section>
         </div>
     );
 };
