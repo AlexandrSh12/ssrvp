@@ -21,8 +21,12 @@ import {
 } from '../store/apiSlice';
 
 const Lab6 = () => {
+
     const isLoggedIn = useLoginState();
     const dispatch = useDispatch();
+
+
+
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
     const [isEditFeedbackOpen, setIsEditFeedbackOpen] = useState(false);
     const [currentFeedback, setCurrentFeedback] = useState(null);
@@ -30,10 +34,15 @@ const Lab6 = () => {
     const { user, feedbacks, isLoading, error } = useSelector(state => state.api);
     const authUser = useSelector(state => state.auth.user);
 
+
+
+
     useEffect(() => {
         if (isLoggedIn) {
             dispatch(fetchAllFeedbacks());
-            dispatch(fetchUserProfile(1)); // Замените на реальный ID из authUser при интеграции
+            dispatch(fetchUserProfile(authUser.id)); // Замените на реальный ID из authUser при интеграции
+            console.log("authUser:", authUser); // Проверьте, есть ли здесь id
+
         }
     }, [dispatch, isLoggedIn]);
 
@@ -96,7 +105,7 @@ const Lab6 = () => {
         } else {
             dispatch(createFeedback({
                 ...values,
-                userId: 1, // Замените на authUser.id при интеграции
+                userId: authUser.id, // Замените на authUser.id при интеграции
                 date: new Date().toLocaleDateString()
             }))
                 .unwrap()

@@ -1,142 +1,146 @@
-// src/store/authSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { usersApi } from './api.js';
+import axios from 'axios';
 
-// Асинхронный thunk для входа пользователя
+// Базовый URL API
+const API_URL = 'https://jsonplaceholder.typicode.com'; // Имитация API сервера
+
+// Асинхронные actions
 export const loginUser = createAsyncThunk(
     'auth/login',
-    async ({ email, password }, { rejectWithValue }) => {
+    async (credentials, { rejectWithValue }) => {
         try {
-            // Получаем всех пользователей и ищем совпадение по email и паролю
-            const response = await usersApi.getAll();
-            const user = response.data.find(u => u.email === email && u.password === password);
+            // В реальном приложении здесь бы был запрос к реальному API
+            // Для имитации используем запрос на JSONPlaceholder
+            const response = await axios.get(`${API_URL}/users`);
 
-            if (!user) {
-                return rejectWithValue('Неверные учетные данные');
+            // Имитация проверки учетных данных
+            const user = response.data.find(
+                user => user.email.toLowerCase() === credentials.email.toLowerCase()
+            );
+
+            if (user) {
+                // Сохраняем пользователя в localStorage
+                localStorage.setItem('user', JSON.stringify({
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    name: user.name
+                }));
+
+                return {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    name: user.name
+                };
             }
 
-            // Возвращаем данные пользователя без пароля
-            const { password: _, ...userWithoutPassword } = user;
-            return userWithoutPassword;
+            return rejectWithValue('Неверный email или пароль');
         } catch (error) {
             return rejectWithValue(error.message);
         }
     }
 );
 
-// Асинхронный thunk для регистрации пользователя
 export const registerUser = createAsyncThunk(
     'auth/register',
     async (userData, { rejectWithValue }) => {
         try {
-            // Проверяем, существует ли пользователь с таким email
-            const usersResponse = await usersApi.getAll();
-            const existingUser = usersResponse.data.find(u => u.email === userData.email);
-
-            if (existingUser) {
-                return rejectWithValue('Пользователь с таким email уже существует');
-            }
-
-            // Создаем нового пользователя
-            const response = await usersApi.create(userData);
-
-            // Возвращаем данные пользователя без пароля
-            const { password: _, ...userWithoutPassword } = response.data;
-            return userWithoutPassword;
+            // Имитация регистрации
+            const response = await axios.post(`${API_URL}/users`, userData);
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.message);
         }
     }
 );
 
-// Асинхронный thunk для обновления профиля пользователя
-export const updateUserProfile = createAsyncThunk(
+export const updateProfile = createAsyncThunk(
     'auth/updateProfile',
-    async ({ id, userData }, { rejectWithValue }) => {
+    async (userData, { rejectWithValue, getState }) => {
         try {
-            const response = await usersApi.update(id, userData);
+            const { auth } = getState();
+            const userId = auth.user.id;
 
-            // Возвращаем обновленные данные пользователя без пароля
-            const { password: _, ...userWithoutPassword } = response.data;
-            return userWithoutPassword;
+            // Имитация обновления профиля
+            const response = await axios.put(`${API_URL}/users/${userId}`, userData);
+
+            // Обновляем информацию в localStorage
+            const updatedUser = { ...auth.user, ...userData };
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+
+            return updatedUser;
         } catch (error) {
             return rejectWithValue(error.message);
         }
     }
 );
 
-// Создаем slice для авторизации
+const initialState = {
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    isLoggedIn: Boolean(localStorage.getItem('user')),
+    loading: false,
+    error: null,
+};
+
 const authSlice = createSlice({
     name: 'auth',
-    initialState: {
-        user: null,
-        isLoading: false,
-        error: null,
-    },
+    initialState,
     reducers: {
-        // Синхронный action для входа (используется для имитации из localStorage)
-        login: (state, action) => {
-            state.user = action.payload;
+        logout: (state) => {
+            localStorage.removeItem('user');
+            state.user = null;
+            state.isLoggedIn = false;
             state.error = null;
         },
-        // Действие для выхода
-        logout: (state) => {
-            state.user = null;
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('userPassword');
-            localStorage.removeItem('userName');
-            localStorage.removeItem('autoLogin');
-        },
-        // Сброс ошибки
         clearError: (state) => {
             state.error = null;
-        }
+        },
     },
     extraReducers: (builder) => {
         builder
-            // Обработка loginUser
+            // Login
             .addCase(loginUser.pending, (state) => {
-                state.isLoading = true;
+                state.loading = true;
                 state.error = null;
             })
             .addCase(loginUser.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.loading = false;
                 state.user = action.payload;
+                state.isLoggedIn = true;
             })
             .addCase(loginUser.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
+                state.loading = false;
+                state.error = action.payload || 'Ошибка авторизации';
             })
-
-            // Обработка registerUser
+            // Register
             .addCase(registerUser.pending, (state) => {
-                state.isLoading = true;
+                state.loading = true;
                 state.error = null;
             })
-            .addCase(registerUser.fulfilled, (state, action) => {
-                state.isLoading = false;
-                // При регистрации не входим автоматически
+            .addCase(registerUser.fulfilled, (state) => {
+                state.loading = false;
+                // После регистрации пользователь должен войти
             })
             .addCase(registerUser.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
+                state.loading = false;
+                state.error = action.payload || 'Ошибка регистрации';
             })
-
-            // Обработка updateUserProfile
-            .addCase(updateUserProfile.pending, (state) => {
-                state.isLoading = true;
+            // Update Profile
+            .addCase(updateProfile.pending, (state) => {
+                state.loading = true;
                 state.error = null;
             })
-            .addCase(updateUserProfile.fulfilled, (state, action) => {
-                state.isLoading = false;
+            .addCase(updateProfile.fulfilled, (state, action) => {
+                state.loading = false;
                 state.user = action.payload;
             })
-            .addCase(updateUserProfile.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload;
+            .addCase(updateProfile.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || 'Ошибка обновления профиля';
             });
-    }
+    },
 });
 
-export const { login, logout, clearError } = authSlice.actions;
+export const { logout, clearError } = authSlice.actions;
 export default authSlice.reducer;
