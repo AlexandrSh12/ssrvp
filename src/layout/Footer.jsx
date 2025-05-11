@@ -1,3 +1,4 @@
+// src/layout/Footer.jsx
 import React, { useState } from 'react';
 import {
     Box,

@@ -1,3 +1,4 @@
+// src/layout/Layout.jsx
 import React, { useState } from 'react';
 import { Box, CssBaseline, useMediaQuery } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';

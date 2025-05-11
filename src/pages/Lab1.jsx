@@ -1,3 +1,4 @@
+// src/pages/Lab1.jsx
 import React, { useEffect, useState } from 'react'
 import Counter from '../components/Counter'
 import AuthForm from '../components/AuthForm'

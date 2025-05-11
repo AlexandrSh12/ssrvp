@@ -1,3 +1,4 @@
+// src/components/Counter.jsx
 import React, { useState } from 'react'
 import Button from './Button'
 

@@ -1,3 +1,4 @@
+// src/components/Message.jsx
 import React from 'react'
 
 const Message = ({ type = 'info', children }) => {

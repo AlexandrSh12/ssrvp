@@ -27,7 +27,7 @@ const LoadingSpinner = ({ size = 'medium' }) => {
     );
 };
 
-// Добавляем стили анимации в head
+// Стили анимации в head
 if (typeof document !== 'undefined') {
     const styleElement = document.createElement('style');
     styleElement.textContent = `

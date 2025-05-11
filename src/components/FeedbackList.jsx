@@ -1,3 +1,4 @@
+// src/components/FeedbackList.jsx
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchFeedbacks } from '../redux/feedbackSlice';

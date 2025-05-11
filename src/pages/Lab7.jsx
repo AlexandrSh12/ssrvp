@@ -1,3 +1,4 @@
+// src/pages/Lab7.jsx
 import React from 'react';
 import {
     Container,

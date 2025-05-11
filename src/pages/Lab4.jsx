@@ -1,3 +1,4 @@
+// src/pages/Lab4.jsx
 import React, { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { increment, decrement } from '../redux/counterSlice'

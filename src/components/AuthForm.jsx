@@ -1,9 +1,10 @@
+// src/components/AuthForm.jsx
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { login, registerUser, clearError } from '../redux/authSlice';
 
-// Форма регистрации (сохранена старая версия с интеграцией Redux)
+// Форма регистрации
 export const RegisterForm = ({ onSwitchTab }) => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const dispatch = useDispatch();

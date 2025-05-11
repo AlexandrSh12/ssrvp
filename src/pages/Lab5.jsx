@@ -1,3 +1,4 @@
+// src/pages/Lab5.jsx
 import React, { useCallback } from 'react';
 import AuthForms from '../components/AuthForm';
 import FeedbackSection from '../components/FeedbackSection';

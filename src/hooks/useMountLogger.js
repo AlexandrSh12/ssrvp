@@ -1,3 +1,4 @@
+// src/hooks/useMountLogger.jsx
 import { useEffect } from 'react'
 
 const useMountLogger = (label = 'Component') => {

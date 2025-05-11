@@ -1,3 +1,4 @@
+// src/context/ThemeContext.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export const ThemeContext = createContext();
@@ -20,5 +21,5 @@ export const ThemeProvider = ({ children }) => {
     );
 };
 
-// 🔥 Добавляем хук
+// Добавляем хук
 export const useTheme = () => useContext(ThemeContext);
