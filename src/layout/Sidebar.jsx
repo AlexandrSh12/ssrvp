@@ -63,7 +63,7 @@ const Sidebar = ({ open, toggleDrawer }) => {
 
     return (
         <Drawer
-            variant={isMobile ? "temporary" : "persistent"}
+            variant={"temporary"}
             open={open}
             onClose={toggleDrawer}
             sx={{

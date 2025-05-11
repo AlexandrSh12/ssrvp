@@ -11,6 +11,7 @@ import {
 } from '../redux/feedbackSlice';
 import '../styles/lab8.css';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Content from '../layout/Content';
 
 // Фиктивные данные для пользователей (в реальном приложении они должны быть в Redux)
 const initialUsers = [

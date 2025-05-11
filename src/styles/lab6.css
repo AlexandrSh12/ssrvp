@@ -1,10 +1,4 @@
 /* Общие стили для лабораторной работы 6 */
-.lab6-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
 
 .header {
     display: flex;
@@ -216,3 +210,5 @@ button[type="submit"]:disabled {
 .redirect-message a:hover {
     text-decoration: underline;
 }
+
+

@@ -4,6 +4,7 @@ import { useGetPostsQuery } from '../redux/apiSlice';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Message from '../components/Message';
 import Button from '../components/Button';
+import Content from '../layout/Content';
 
 const Lab9 = () => {
     // Используем RTK Query для получения данных

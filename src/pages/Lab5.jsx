@@ -4,7 +4,7 @@ import AuthForms from '../components/AuthForm';
 import FeedbackSection from '../components/FeedbackSection';
 import UserProfile from '../components/UserProfile';
 import useLoginState from '../hooks/useLoginState';
-import '../styles/lab5.css';
+
 
 const Lab5 = () => {
     // Используем кастомный хук для управления состоянием авторизации

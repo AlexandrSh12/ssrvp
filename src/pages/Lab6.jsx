@@ -7,6 +7,7 @@ import FeedbackForm from '../components/FeedbackForm';
 import FeedbackList from '../components/FeedbackList';
 import ProfileEditor from '../components/ProfileEditor';
 import '../styles/lab6.css';
+import Content from '../layout/Content';
 
 const Lab6 = () => {
     const dispatch = useDispatch();

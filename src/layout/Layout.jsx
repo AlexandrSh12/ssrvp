@@ -6,11 +6,12 @@ import { useTheme as useAppTheme } from '../context/ThemeContext';
 import Header from './Header';
 import Footer from './Footer';
 import Sidebar from './Sidebar';
+import Content from './Content';
 
 const Layout = ({ children }) => {
     const { theme } = useAppTheme();
     const isMobile = useMediaQuery('(max-width:900px)');
-    const [drawerOpen, setDrawerOpen] = useState(!isMobile);
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const toggleDrawer = () => {
         setDrawerOpen(!drawerOpen);
@@ -43,12 +44,11 @@ const Layout = ({ children }) => {
                         sx={{
                             flexGrow: 1,
                             p: 3,
-                            width: { sm: `calc(100% - ${drawerOpen ? '250px' : '0px'})` },
-                            ml: { sm: drawerOpen ? '250px' : 0 },
-                            transition: 'margin 0.2s',
+                            width: '100%',
                         }}
-                    >
+                    >   <Content>
                         {children}
+                        </Content>
                     </Box>
                 </Box>
                 <Footer />
