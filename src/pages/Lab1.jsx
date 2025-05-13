@@ -13,7 +13,7 @@ const Lab1 = () => {
 
         const timer = setTimeout(() => {
             setNotification(false)
-        }, 3000)
+        }, 5000)
 
         return () => clearTimeout(timer)
     }, [])

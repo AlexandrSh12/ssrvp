@@ -4,6 +4,11 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { login, registerUser, clearError } from '../redux/authSlice';
 
+
+
+
+//Содержит компоненты для форм авторизации и регистрации
+//Включает RegisterForm, LoginForm и главный компонент AuthForms с переключением вкладок
 // Форма регистрации
 export const RegisterForm = ({ onSwitchTab }) => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -73,14 +78,27 @@ export const RegisterForm = ({ onSwitchTab }) => {
     );
 };
 
-// Форма авторизации (объединённая версия)
+// Обновленная форма авторизации (LoginForm)
 export const LoginForm = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors }, watch } = useForm();
     const dispatch = useDispatch();
     const { error, status, user } = useSelector((state) => state.auth);
 
+    // Получаем текущее значение поля ввода для логина
+    const loginValue = watch("login");
+    // Определяем, используется ли простой логин (admin/user) вместо email
+    const isSimpleLogin = loginValue === 'admin' || loginValue === 'user';
+
     const onSubmit = (data) => {
-        dispatch(login(data));
+        // Преобразуем данные для совместимости с authSlice
+        const loginData = {
+            // Для простых логинов используем логин как username
+            // Для email-логинов используем email как email
+            username: data.login,
+            email: isSimpleLogin ? `${data.login}@example.com` : data.login,
+            password: data.password
+        };
+        dispatch(login(loginData));
     };
 
     const handleChange = () => {
@@ -106,19 +124,24 @@ export const LoginForm = () => {
 
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="form-group">
-                    <label>Email</label>
+                    <label>Логин или Email</label>
                     <input
-                        type="email"
-                        {...register("email", {
+                        type="text" // Изменили тип с email на text
+                        {...register("login", {
                             required: "Обязательное поле",
-                            pattern: {
-                                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                message: "Некорректный email"
+                            validate: (value) => {
+                                // Проверка: если это admin или user, то пропускаем проверку email
+                                if (value === 'admin' || value === 'user') {
+                                    return true;
+                                }
+                                // Иначе проверяем как email
+                                const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+                                return emailRegex.test(value) || "Некорректный email";
                             },
                             onChange: handleChange
                         })}
                     />
-                    {errors.email && <span className="error">{errors.email.message}</span>}
+                    {errors.login && <span className="error">{errors.login.message}</span>}
                 </div>
 
                 <div className="form-group">
@@ -142,6 +165,7 @@ export const LoginForm = () => {
                 <p>Для входа используйте:</p>
                 <p>Администратор: admin / admin</p>
                 <p>Пользователь: user / user</p>
+                <p>Или любой валидный email</p>
             </div>
         </div>
     );

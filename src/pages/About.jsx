@@ -35,18 +35,18 @@ const About = () => {
                             sx={{ width: 150, height: 150, mx: 'auto', mb: 2 }}
                         />
                         <Typography variant="h6" gutterBottom>
-                            Студент
+                            Александр Шаповалов
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            Разработчик React
+                            Студент
                         </Typography>
                         <Divider sx={{ my: 2 }} />
                         <Box sx={{ textAlign: 'left' }}>
                             <Typography variant="body2" sx={{ mb: 1 }}>
-                                <strong>Email:</strong> student@example.com
+                                <strong>Email:</strong> alexsh@example.com
                             </Typography>
                             <Typography variant="body2" sx={{ mb: 1 }}>
-                                <strong>Группа:</strong> ИСиТ-0-00
+                                <strong>Группа:</strong> 4.105-1
                             </Typography>
                             <Typography variant="body2">
                                 <strong>Год обучения:</strong> 2025

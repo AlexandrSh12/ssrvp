@@ -8,7 +8,7 @@ const Lab3 = () => {
             <h2>Лабораторная 3</h2>
             <Container>
                 <p>Контент лабораторной работы 3</p>
-                <p>Header, Footer, Sidebar уже используются.</p>
+                <p>Header, Footer, Sidebar и Content уже используются.</p>
             </Container>
         </div>
     )

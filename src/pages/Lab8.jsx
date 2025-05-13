@@ -1,5 +1,5 @@
 // src/pages/Lab8.jsx
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTable, useSortBy, useBlockLayout, useResizeColumns, useColumnOrder } from 'react-table';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -11,7 +11,6 @@ import {
 } from '../redux/feedbackSlice';
 import '../styles/lab8.css';
 import LoadingSpinner from '../components/LoadingSpinner';
-import Content from '../layout/Content';
 
 // Фиктивные данные для пользователей (в реальном приложении они должны быть в Redux)
 const initialUsers = [
@@ -23,48 +22,59 @@ const initialUsers = [
 
 // Компонент для перетаскивания колонок
 const DraggableHeader = ({ column, index, moveColumn }) => {
-    const [, drop] = useDrop({
+    const ref = React.useRef(null);
+
+    const [{ isOver }, drop] = useDrop({
         accept: 'column',
-        drop: (item) => {
-            if (item.index !== index) {
-                moveColumn(item.index, index);
-            }
-        },
+        drop: (item) => moveColumn(item.index, index),
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+        }),
     });
 
     const [{ isDragging }, drag] = useDrag({
         type: 'column',
-        item: { index },
+        item: () => ({ id: column.id, index }),
         collect: (monitor) => ({
-            isDragging: !!monitor.isDragging(),
+            isDragging: monitor.isDragging(),
         }),
     });
 
+    drag(drop(ref));
+
     return (
         <div
-            ref={(node) => drag(drop(node))}
-            style={{ opacity: isDragging ? 0.5 : 1, cursor: 'move' }}
+            ref={ref}
+            style={{
+                opacity: isDragging ? 0.5 : 1,
+                cursor: 'move',
+                backgroundColor: isOver ? '#f0f0f0' : 'transparent',
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
             {...column.getHeaderProps(column.getSortByToggleProps())}
-            className="th"
         >
             {column.render('Header')}
             <span>
-        {column.isSorted
-            ? column.isSortedDesc
-                ? ' 🔽'
-                : ' 🔼'
-            : ''}
-      </span>
+                {column.isSorted
+                    ? column.isSortedDesc
+                        ? ' 🔽'
+                        : ' 🔼'
+                    : ''}
+            </span>
         </div>
     );
 };
 
-// Компонент таблицы с возможностью перетаскивания колонок
-const DraggableTable = ({ columns, data, onAction }) => {
+// Компонент таблицы
+const DraggableTable = ({ columns, data }) => {
     const defaultColumn = useMemo(
         () => ({
             minWidth: 100,
-            width: 150,
+            width: 200,
             maxWidth: 400,
         }),
         []
@@ -84,51 +94,66 @@ const DraggableTable = ({ columns, data, onAction }) => {
             data,
             defaultColumn,
         },
-        useSortBy,
+        useColumnOrder,
         useBlockLayout,
         useResizeColumns,
-        useColumnOrder
+        useSortBy
     );
 
-    const moveColumn = (fromIndex, toIndex) => {
+    const moveColumn = useCallback((dragIndex, hoverIndex) => {
         const newColumnOrder = [...columnOrder];
-        const item = newColumnOrder.splice(fromIndex, 1)[0];
-        newColumnOrder.splice(toIndex, 0, item);
+        newColumnOrder.splice(hoverIndex, 0, newColumnOrder.splice(dragIndex, 1)[0]);
         setColumnOrder(newColumnOrder);
-    };
+    }, [columnOrder, setColumnOrder]);
 
     return (
-        <div className="table-container">
-            <div className="table-scroll">
-                <div {...getTableProps()} className="table">
-                    <div className="thead">
-                        {headerGroups.map(headerGroup => (
-                            <div {...headerGroup.getHeaderGroupProps()} className="tr">
-                                {headerGroup.headers.map((column, index) => (
+        <div style={{ width: '100%', overflow: 'auto' }}>
+            <div {...getTableProps()} style={{ width: '100%', display: 'inline-block' }}>
+                <div>
+                    {headerGroups.map(headerGroup => (
+                        <div {...headerGroup.getHeaderGroupProps()} style={{ display: 'flex' }}>
+                            {headerGroup.headers.map((column, i) => (
+                                <div
+                                    {...column.getHeaderProps()}
+                                    style={{
+                                        width: column.width,
+                                        minWidth: column.minWidth,
+                                        padding: '8px',
+                                        border: '1px solid #ddd',
+                                        background: '#f8f8f8',
+                                    }}
+                                >
                                     <DraggableHeader
                                         column={column}
-                                        index={index}
+                                        index={i}
                                         moveColumn={moveColumn}
-                                        key={column.id}
                                     />
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+                <div {...getTableBodyProps()}>
+                    {rows.map(row => {
+                        prepareRow(row);
+                        return (
+                            <div {...row.getRowProps()} style={{ display: 'flex' }}>
+                                {row.cells.map(cell => (
+                                    <div
+                                        {...cell.getCellProps()}
+                                        style={{
+                                            width: cell.column.width,
+                                            minWidth: cell.column.minWidth,
+                                            padding: '8px',
+                                            border: '1px solid #ddd',
+                                        }}
+                                    >
+                                        {cell.render('Cell')}
+                                    </div>
                                 ))}
                             </div>
-                        ))}
-                    </div>
-                    <div {...getTableBodyProps()} className="tbody">
-                        {rows.map(row => {
-                            prepareRow(row);
-                            return (
-                                <div {...row.getRowProps()} className="tr">
-                                    {row.cells.map(cell => (
-                                        <div {...cell.getCellProps()} className="td">
-                                            {cell.render('Cell')}
-                                        </div>
-                                    ))}
-                                </div>
-                            );
-                        })}
-                    </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>

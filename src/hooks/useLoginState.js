@@ -1,6 +1,9 @@
 // src/hooks/useLoginState.jsx
 import { useState, useEffect } from 'react';
 
+//Кастомный хук для управления состоянием авторизации
+//Предоставляет функции для входа/выхода и хранит информацию о пользователе в localStorage
+
 const useLoginState = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState(null);

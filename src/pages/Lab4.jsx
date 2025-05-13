@@ -1,4 +1,6 @@
 // src/pages/Lab4.jsx
+//хук для отладки, который выводит в консоль информацию о монтировании/размонтировании компонентов для лабы 4
+
 import React, { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { increment, decrement } from '../redux/counterSlice'
