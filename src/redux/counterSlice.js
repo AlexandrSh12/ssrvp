@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
-
+// src/redux/counterSlice.js
+//слайс Redux для счетчика
 const counterSlice = createSlice({
     name: 'counter',
     initialState: { value: 0 },

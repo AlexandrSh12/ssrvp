@@ -19,7 +19,7 @@ const Lab6 = () => {
         if (isLoggedIn) {
             dispatch(fetchFeedbacks());
         }
-    }, [dispatch, isLoggedIn]);
+    }, [dispatch]);
 
     // Обработчик для выхода из системы
     const handleLogout = () => {

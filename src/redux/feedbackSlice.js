@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Базовый URL API (можно заменить на ваш API)
+// Базовый URL API
 const API_URL = 'https://jsonplaceholder.typicode.com/comments';
 
 // Async thunks (объединяем старые и новые)
@@ -17,7 +17,7 @@ export const fetchFeedbacks = createAsyncThunk(
                 message: comment.body,
                 rating: Math.floor(Math.random() * 5) + 1,
                 date: new Date().toLocaleDateString(),
-                status: 'active' // Добавляем статус из нового кода
+                status: 'active'
             }));
         } catch (error) {
             return rejectWithValue(error.message);

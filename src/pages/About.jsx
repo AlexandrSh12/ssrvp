@@ -31,7 +31,7 @@ const About = () => {
                     <Paper elevation={2} sx={{ p: 3, textAlign: 'center' }}>
                         <Avatar
                             alt="Профиль пользователя"
-                            src="/api/placeholder/150/150"
+                            src="../public/react.webp"
                             sx={{ width: 150, height: 150, mx: 'auto', mb: 2 }}
                         />
                         <Typography variant="h6" gutterBottom>
@@ -62,14 +62,13 @@ const About = () => {
                                 Обо мне
                             </Typography>
                             <Typography variant="body1" paragraph>
-                                Я студент направления "Информационные системы и технологии".
-                                Изучаю веб-разработку, в частности React и связанные с ним
-                                технологии. Этот проект является частью моего учебного курса.
+                                Я студент направления "Фундаментальная информатика и информационные технологии".
+                                Изучаю веб-разработку на курсе Современные средства разработки Web-приложений,
+                                в частности React и связанные с ним технологии. Этот проект является частью моего учебного курса.
                             </Typography>
                             <Typography variant="body1">
                                 В процессе обучения я осваиваю различные библиотеки и фреймворки,
-                                такие как Material-UI, Redux и React Router, что позволяет создавать
-                                современные, адаптивные и функциональные веб-приложения.
+                                такие как Material-UI, Redux и React Router.
                             </Typography>
                         </CardContent>
                     </Card>
@@ -111,7 +110,7 @@ const About = () => {
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="Интересы"
-                                        secondary="Веб-разработка, UX/UI дизайн, мобильные технологии"
+                                        secondary="Веб-разработка, Backend, Frontend"
                                     />
                                 </ListItem>
                             </List>

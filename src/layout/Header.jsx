@@ -36,13 +36,23 @@ const Header = ({ toggleDrawer }) => {
                     <MenuIcon />
                 </IconButton>
 
-                <Typography
-                    variant="h6"
-                    component="div"
-                    sx={{ flexGrow: 1 }}
+                <Button
+                    component={RouterLink}
+                    to="/"
+                    color="inherit"
+                    sx={{
+                        flexGrow: 1,
+                        justifyContent: 'flex-start',
+                        textTransform: 'none',
+                        '&:hover': {
+                            backgroundColor: 'transparent'
+                        }
+                    }}
                 >
-                    {!isMobile && "React Лабораторные"}
-                </Typography>
+                    <Typography variant="h6">
+                        {!isMobile && "React Лабораторные"}
+                    </Typography>
+                </Button>
 
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Button

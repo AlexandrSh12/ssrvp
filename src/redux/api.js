@@ -4,7 +4,7 @@
 //Предоставляет методы для работы с пользователями и отзывами
 
 // Базовый URL API сервера
-const API_URL = 'http://localhost:3001';
+const API_URL = 'https://jsonplaceholder.typicode.com';
 
 // Общая функция для выполнения запросов
 const fetchWithAuth = async (endpoint, options = {}) => {
