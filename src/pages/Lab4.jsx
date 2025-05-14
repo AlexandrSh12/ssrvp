@@ -24,6 +24,15 @@ const Lab4 = () => {
             <p>Счётчик: {count}</p>
             <button onClick={() => dispatch(increment())}>+</button>
             <button onClick={() => dispatch(decrement())}>-</button>
+            <h3>Описание выполненной работы:</h3>
+            <p>
+                — Реализовано переключение темы (день/ночь) через React Context.<br />
+                — Использован useEffect через хук useMountLogger (монтирование/размонтирование).<br />
+                — Подключён Redux, реализованы actions и reducers для счётчика (increment, decrement).<br />
+                — Используются useSelector и useDispatch для управления состоянием.<br />
+                — В проект внедрён react-router, переходы реализованы через меню (Sidebar).<br />
+                — Обработка маршрутов реализована в Content с использованием роутера.<br />
+            </p>
         </div>
     )
 }
